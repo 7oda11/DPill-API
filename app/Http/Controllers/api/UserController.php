@@ -20,6 +20,8 @@ class UserController extends Controller
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:6',
             'phone' => "required|string|unique:users",
+            'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
+
         ]);
 
         $user = new User([
@@ -106,6 +108,8 @@ class UserController extends Controller
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:6',
             'phone' => "required|string|unique:users",
+            'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
+
         ]);
         $user = MyTokenManager::currentUser($request);
         DB::update(
