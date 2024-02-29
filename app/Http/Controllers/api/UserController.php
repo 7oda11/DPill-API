@@ -19,7 +19,6 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:6',
-            'phone' => "required|string|unique:users",
             'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
 
         ]);
@@ -28,7 +27,6 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'phone' => $request->phone,
         ]);
 
         $user->save();
@@ -107,14 +105,13 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:6',
-            'phone' => "required|string|unique:users",
             'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
 
         ]);
         $user = MyTokenManager::currentUser($request);
         DB::update(
-            'update users set name =?,email=?,password=?,phone=? where id=?',
-            [$request->name, $request->email, Hash::make($request->password), $request->phone, $user->id]
+            'update users set name =?,email=?,password=? where id=?',
+            [$request->name, $request->email, Hash::make($request->password), $user->id]
         );
         $newUser = DB::select('select * from users where id=?', [$user->id]);
         return response()->json(['success' => 'personal information updated successfully.', 'user' => $newUser]);
