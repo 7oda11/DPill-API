@@ -50,7 +50,7 @@ class UserController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed', "statusCode" => 401
-            ], 422);
+            ], 401);
         }
 
         $user = new User([
