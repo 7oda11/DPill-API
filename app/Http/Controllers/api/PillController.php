@@ -24,6 +24,7 @@ class PillController extends Controller
         if ($Pilldata && $pilldosagedata) {
             return response()->json([
                 'message' => 'Pill data retrieved successfully',
+                "statusCode"=>200,
                 'pillData' => $Pilldata,
                 'pilldosagedata' => $pilldosagedata,
                 'contraindiacationsdata' => $contraindiacationsdata,

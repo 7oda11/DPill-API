@@ -63,6 +63,8 @@ class UserController extends Controller
     {
         $user = MyTokenManager::currentUser($request);
         return [
+            "message"=>'User profile returned successfully',
+            "statusCode" => 200,
             'user' => $user
         ];
     }
