@@ -10,18 +10,51 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    // public function register(Request $request)
+    // {
+    //     $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|string|email|unique:users|max:255',
+    //         'password' => 'required|string|min:6',
+    //         'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
+
+    //     ]);
+
+    //     $user = new User([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'password' => Hash::make($request->password),
+    //     ]);
+
+    //     $user->save();
+    //     $lastInsertedUserId = $user->id;
+    //     $tokens = MyTokenManager::CreateToken($lastInsertedUserId);
+    //     return [
+    //         'message' => 'user created successfully',
+    //         'token' => $tokens,
+    //     ];
+    // }
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users|max:255',
-            'password' => 'required|string|min:6',
-            'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
-
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|unique:users|max:255',
+                'password' => 'required|string|min:6',
+                'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
+            ]);
+        } catch (ValidationException $e) {
+            // Handle validation errors here
+            // For example, you could log the error or return a custom response
+            // In this example, let's return a custom response with a 422 status code
+            return response()->json([
+                'message' => 'Validation failed',
+            ], 422);
+        }
 
         $user = new User([
             'name' => $request->name,
@@ -32,8 +65,9 @@ class UserController extends Controller
         $user->save();
         $lastInsertedUserId = $user->id;
         $tokens = MyTokenManager::CreateToken($lastInsertedUserId);
+
         return [
-            'message' => 'user created successfully',
+            'message' => 'User created successfully',
             'token' => $tokens,
         ];
     }
