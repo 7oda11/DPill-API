@@ -31,7 +31,7 @@ class PillController extends Controller
                 'side_effectsdata' => $side_effectsdata
             ], 200);
         } else {
-            return response()->json(['message' => 'Pill not found'], 404);
+            return response()->json(['errorMessage' => 'Pill not found'], 404);
         }
     }
 }

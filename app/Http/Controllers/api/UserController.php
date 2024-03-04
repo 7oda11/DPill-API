@@ -49,7 +49,7 @@ class UserController extends Controller
             ]);
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => 'Validation failed'
+                'errorMessage' => 'Validation failed'
             ], 401);
         }
 
@@ -86,7 +86,7 @@ class UserController extends Controller
         } else {
             // Either user not found or password doesn't match
             return response()->json([
-                'error' => 'Wrong email or password',
+                'errorMessage' => 'Wrong email or password',
             ], 401);
         }
     }
@@ -127,7 +127,7 @@ class UserController extends Controller
             return response()->json(['success' => 'Image uploaded successfully.', 'path' => $userPath, "statusCode" => 200]);
         } else {
             // Handle case where no photo was uploaded
-            return response()->json(['error' =>'No photo uploaded.', "statusCode" => 400], 400);
+            return response()->json(['errorMessage' =>'No photo uploaded.'], 400);
         }
     }
     public function updatePersonalInformation(Request $request)

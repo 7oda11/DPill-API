@@ -19,7 +19,7 @@ class MyAuthApi
         if (MyTokenManager::currentUser($request)) {
             return $next($request);
         }else{
-            return response(['error'=>'you are unauthorized',"statusCode"=>401],401);
+            return response(['errorMessage'=>'you are unauthorized',"statusCode"=>401],401);
         }
     }
 }
