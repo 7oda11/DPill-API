@@ -48,9 +48,6 @@ class UserController extends Controller
                 'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
             ]);
         } catch (ValidationException $e) {
-            // Handle validation errors here
-            // For example, you could log the error or return a custom response
-            // In this example, let's return a custom response with a 422 status code
             return response()->json([
                 'message' => 'Validation failed', "statusCode" => 422
             ], 422);
@@ -97,8 +94,6 @@ class UserController extends Controller
     {
         $user = MyTokenManager::currentUser($request);
         return [
-            "message"=>'User profile returned successfully',
-            "statusCode" => 200,
             'user' => $user
         ];
     }
