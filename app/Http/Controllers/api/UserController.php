@@ -52,7 +52,7 @@ class UserController extends Controller
             // For example, you could log the error or return a custom response
             // In this example, let's return a custom response with a 422 status code
             return response()->json([
-                'message' => 'Validation failed',
+                'message' => 'Validation failed', "statusCode" => 422
             ], 422);
         }
 
