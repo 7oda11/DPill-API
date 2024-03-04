@@ -95,7 +95,7 @@ class UserController extends Controller
             // $user->photo = 'application/users/image/' . $imageName;
             // $user->save();
             // Return a JSON response indicating success and the path to the uploaded photo
-            return response()->json(['success' => 'Image uploaded successfully.', 'path' => $userPath,, "statusCode" => 200]);
+            return response()->json(['success' => 'Image uploaded successfully.', 'path' => $userPath, "statusCode" => 200]);
         } else {
             // Handle case where no photo was uploaded
             return response()->json(['error' =>'No photo uploaded.', "statusCode" => 400], 400);
