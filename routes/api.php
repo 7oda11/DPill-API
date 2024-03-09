@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\MyTokenManager;
+use App\Http\Controllers\api\BlogController;
 use App\Http\Controllers\api\PillController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
@@ -33,14 +34,20 @@ use Illuminate\Support\Facades\Route;
 //         ];
 //     }
 // });
-Route::post('/login',[UserController::class,'login']);
-
+Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
 
 Route::group(['middleware' => 'MyAuthApi'], function () {
     Route::get('/detection', [PillController::class, 'pillDetectionData']);
+    //--------------------------------- start profile--------------------------------------------
     Route::post('/userphoto', [UserController::class, 'uploadUserPhoto']);
     Route::post('/userpersonalinformation', [UserController::class, 'updatePersonalInformation']);
-    Route::get('/profile',[UserController::class, 'profile']);
+    Route::get('/profile', [UserController::class, 'profile']);
+    //----------------------------------------end profile---------------------------------------
+    //------------------------------------start Blog----------------------------------------------
+    Route::get('/blog/index', [BlogController::class, 'index']);
+    Route::get('/blog/search', [BlogController::class, 'search']);
+    Route::get('/blog/show', [BlogController::class, 'show']);
+    //------------------------------------end Blog---------------------------------------
     Route::get('/logout', [UserController::class, 'logout']);
 });
