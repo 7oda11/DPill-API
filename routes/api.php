@@ -38,16 +38,39 @@ Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
 
 Route::group(['middleware' => 'MyAuthApi'], function () {
-    Route::get('/detection', [PillController::class, 'pillDetectionData']);
+
+
     //--------------------------------- start profile--------------------------------------------
+
     Route::post('/userphoto', [UserController::class, 'uploadUserPhoto']);
     Route::post('/userpersonalinformation', [UserController::class, 'updatePersonalInformation']);
     Route::get('/profile', [UserController::class, 'profile']);
+
     //----------------------------------------end profile---------------------------------------
+
     //------------------------------------start Blog----------------------------------------------
+
     Route::get('/blog/index', [BlogController::class, 'index']);
     Route::get('/blog/search', [BlogController::class, 'search']);
     Route::get('/blog/show', [BlogController::class, 'show']);
+
     //------------------------------------end Blog---------------------------------------
+
+    //--------------------------------------start detection -----------------------------------------
+
+    Route::get('/detection', [PillController::class, 'pillDetectionData']);
+    Route::get('/detection/dosage', [PillController::class, 'pillDetectionDosageData']);
+    Route::get('/detection/contraindiacation', [PillController::class, 'pillDetectionContraindiacationsData']);
+    Route::get('/detection/sideeffect', [PillController::class, 'pillDetectionSideEffectsData']);
+
+    //---------------------------------------end detection---------------------------------------------
+
+    //---------------------------------------start Interaction--------------------------------------------------
+
+    Route::get('/interaction', [PillController::class, 'pillInteractionData']);
+    Route::get('/interaction/history', [PillController::class, 'PillInteractionUserHistory']);
+    Route::get('/interaction/history/show', [PillController::class, 'ShowPillInteractionUserHistory']);
+
+    //----------------------------------------End Interaction----------------------------------------------------
     Route::get('/logout', [UserController::class, 'logout']);
 });
