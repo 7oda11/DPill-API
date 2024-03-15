@@ -132,7 +132,7 @@ class UserController extends Controller
     // }
     public function updatePersonalInformation(Request $request)
     {
-        try {
+        // try {
             $request->validate([
                 'name' => 'required|string|max:255',
                 'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -140,11 +140,11 @@ class UserController extends Controller
                 'password' => 'required|string|min:6',
                 'confirm_password' => 'required|string|same:password'
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'errorMessage' => 'Validation failed'
-            ], 401);
-        }
+        // } catch (ValidationException $e) {
+        //     return response()->json([
+        //         'errorMessage' => 'Validation failed'
+        //     ], 401);
+        // }
 
         if ($request->hasFile('photo')) {
             $uploadedPhoto = $request->file('photo');
