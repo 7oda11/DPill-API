@@ -135,7 +135,7 @@ class UserController extends Controller
         // try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
                 'email' => 'required|string|email|unique:users|max:255',
                 'password' => 'required|string|min:6',
                 'confirm_password' => 'required|string|same:password'
