@@ -132,7 +132,7 @@ class UserController extends Controller
     // }
     public function updatePersonalInformation(Request $request)
     {
-        // try {
+        try {
             $request->validate([
                 'name' => 'required|string|max:255',
                 'photo' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -140,11 +140,11 @@ class UserController extends Controller
                 'password' => 'required|string|min:6',
                 'confirm_password' => 'required|string|same:password'
             ]);
-        // } catch (ValidationException $e) {
-        //     return response()->json([
-        //         'errorMessage' => 'Validation failed'
-        //     ], 401);
-        // }
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errorMessage' => 'Validation failed'
+            ], 401);
+        }
 
         if ($request->hasFile('photo')) {
             $uploadedPhoto = $request->file('photo');
@@ -155,6 +155,14 @@ class UserController extends Controller
             DB::update(
                 'update users set name =?,email=?,password=?,photo =? where id=?',
                 [$request->name, $request->email, Hash::make($request->password), $userPath, $user->id]
+            );
+            $newUser = DB::select('select * from users where id=?', [$user->id]);
+            return response()->json(['success' => 'personal information updated successfully.', 'user' => $newUser], 200);
+        } else {
+            $user = MyTokenManager::currentUser($request);
+            DB::update(
+                'update users set name =?,email=?,password=? where id=?',
+                [$request->name, $request->email, Hash::make($request->password), $user->id]
             );
             $newUser = DB::select('select * from users where id=?', [$user->id]);
             return response()->json(['success' => 'personal information updated successfully.', 'user' => $newUser], 200);
