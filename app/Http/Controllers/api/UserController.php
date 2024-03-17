@@ -49,7 +49,8 @@ class UserController extends Controller
             ]);
         } catch (ValidationException $e) {
             return response()->json([
-                'errorMessage' => 'Validation failed'
+                'errorMessage' => 'Validation failed',
+                "statusCode" => 401,
             ], 401);
         }
 
@@ -87,6 +88,7 @@ class UserController extends Controller
             // Either user not found or password doesn't match
             return response()->json([
                 'errorMessage' => 'Wrong email or password',
+                "statusCode" => 401,
             ], 401);
         }
     }
