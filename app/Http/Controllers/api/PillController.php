@@ -13,7 +13,7 @@ class PillController extends Controller
 {
     public function pillDetectionData(Request $request)
     {
-        $name = $request->query('name');
+        $name = $request->input('name');
         if (!$name) {
             return response()->json(['error' => 'Pill name not provided'], 400);
         }
@@ -29,7 +29,7 @@ class PillController extends Controller
     }
     public function pillDetectionDosageData(Request $request)
     {
-        $name = $request->query('name');
+        $name = $request->input('name');
         if (!$name) {
             return response()->json(['error' => 'Pill name not provided'], 400);
         }
@@ -47,7 +47,7 @@ class PillController extends Controller
     }
     public function pillDetectionContraindiacationsData(Request $request)
     {
-        $name = $request->query('name');
+        $name = $request->input('name');
         if (!$name) {
             return response()->json(['error' => 'Pill name not provided'], 400);
         }
@@ -64,7 +64,7 @@ class PillController extends Controller
     }
     public function pillDetectionSideEffectsData(Request $request)
     {
-        $name = $request->query('name');
+        $name = $request->input('name');
         if (!$name) {
             return response()->json(['error' => 'Pill name not provided'], 400);
         }
@@ -81,8 +81,8 @@ class PillController extends Controller
     }
     public function pillInteractionData(Request $request)
     {
-        $firstPill = $request->query('firstPill');
-        $secondPill = $request->query('secondPill');
+        $firstPill = $request->input('firstPill');
+        $secondPill = $request->input('secondPill');
         if (!$firstPill or !$secondPill) {
             return response()->json(['error' => 'Pill name not provided'], 400);
         }
@@ -137,7 +137,7 @@ class PillController extends Controller
     }
     public function ShowPillInteractionUserHistory(Request $request)
     {
-        $interaction_id = $request->query('interaction_id');
+        $interaction_id = $request->input('interaction_id');
         if (!$interaction_id) {
             return response()->json(['error' => 'Pill interaction not provided'], 400);
         }

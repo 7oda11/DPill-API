@@ -24,7 +24,7 @@ class BlogController extends Controller
     }
     public function search(Request $request)
     {
-        $title = $request->query('title');
+        $title = $request->input('title');
         if (!$title) {
             return response()->json(['error' => 'title name not provided'], 400);
         }
@@ -41,7 +41,7 @@ class BlogController extends Controller
     }
     public function show(Request $request)
     {
-        $id = $request->query('id');
+        $id = $request->input('id');
         if (!$id) {
             return response()->json(['error' => 'id not provided'], 400);
         }
