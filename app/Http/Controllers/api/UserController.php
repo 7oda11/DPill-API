@@ -21,15 +21,12 @@ class UserController extends Controller
     //         'email' => 'required|string|email|unique:users|max:255',
     //         'password' => 'required|string|min:6',
     //         'confirm_password' => 'required|string|same:password', // Ensure confirm_password matches password
-
     //     ]);
-
     //     $user = new User([
     //         'name' => $request->name,
     //         'email' => $request->email,
     //         'password' => Hash::make($request->password),
     //     ]);
-
     //     $user->save();
     //     $lastInsertedUserId = $user->id;
     //     $tokens = MyTokenManager::CreateToken($lastInsertedUserId);
@@ -147,7 +144,6 @@ class UserController extends Controller
                 'errorMessage' => 'Validation failed'
             ], 401);
         }
-
         if ($request->hasFile('photo')) {
             $uploadedPhoto = $request->file('photo');
             $imageName = time() . '.' . $uploadedPhoto->getClientOriginalExtension();

@@ -8,37 +8,48 @@ use App\Models\api\Pill;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class PillController extends Controller
 {
     public function pillDetectionData(Request $request)
     {
-        $name = $request->input('name');
-        if (!$name) {
-            return response()->json(['error' => 'Pill name not provided'], 400);
-        }
-        $Pilldata = Pill::where('name', $name)->first();
-        if ($Pilldata) {
-            return response()->json([
-                'message' => 'Pill data retrieved successfully',
-                'pillData' => $Pilldata,
-            ], 200);
-        } else {
-            return response()->json(['errorMessage' => 'Pill not found'], 404);
+        if ($request->hasFile('img')) {
+            $img = $request->file('img');
+            $response = Http::attach(
+                'img',
+                file_get_contents($img->path()),
+                $img->getClientOriginalName()
+            )->post('http://127.0.0.1:5000/detect');
+            if ($response->successful()) {
+                $data = $response->json();
+                $pillData = Pill::where('name', $data['Class Name'])->first();
+                if ($pillData) {
+                    return response()->json([
+                        'message' => 'Pill data retrieved successfully',
+                        'pillData' => $pillData,
+                    ], 200);
+                } else {
+                    return response()->json(['errorMessage' => 'Pill not found'], 404);
+                }
+            } else {
+                return response()->json(['error' => 'Error processing the request'], $response->status());
+            }
         }
     }
     public function pillDetectionDosageData(Request $request)
     {
-        $name = $request->input('name');
-        if (!$name) {
-            return response()->json(['error' => 'Pill name not provided'], 400);
+        $id = $request->input('id');
+        if (!$id) {
+            return response()->json(['error' => 'Pill id not provided'], 400);
         }
-        $Pilldata = Pill::where('name', $name)->first();
+        $Pilldata = Pill::where('id', $id)->first();
         $pilldosagedata = DB::select('select * from pill_dosages where pill_id=?', [$Pilldata->id]);
 
         if ($Pilldata && $pilldosagedata) {
             return response()->json([
                 'message' => 'Pill data retrieved successfully',
+                'pillData'=> $Pilldata,
                 'pilldosagedata' => $pilldosagedata,
             ], 200);
         } else {
@@ -47,15 +58,16 @@ class PillController extends Controller
     }
     public function pillDetectionContraindiacationsData(Request $request)
     {
-        $name = $request->input('name');
-        if (!$name) {
-            return response()->json(['error' => 'Pill name not provided'], 400);
+        $id = $request->input('id');
+        if (!$id) {
+            return response()->json(['error' => 'Pill id not provided'], 400);
         }
-        $Pilldata = Pill::where('name', $name)->first();
+        $Pilldata = Pill::where('id', $id)->first();
         $contraindiacationsdata = DB::select('select * from contraindiacations where pill_id=?', [$Pilldata->id]);
         if ($Pilldata && $contraindiacationsdata) {
             return response()->json([
                 'message' => 'Pill data retrieved successfully',
+                'pillData' => $Pilldata,
                 'contraindiacationsdata' => $contraindiacationsdata,
             ], 200);
         } else {
@@ -64,15 +76,16 @@ class PillController extends Controller
     }
     public function pillDetectionSideEffectsData(Request $request)
     {
-        $name = $request->input('name');
-        if (!$name) {
-            return response()->json(['error' => 'Pill name not provided'], 400);
+        $id = $request->input('id');
+        if (!$id) {
+            return response()->json(['error' => 'Pill id not provided'], 400);
         }
-        $Pilldata = Pill::where('name', $name)->first();
+        $Pilldata = Pill::where('id', $id)->first();
         $side_effectsdata = DB::select('select * from side_effects where pill_id=?', [$Pilldata->id]);
         if ($Pilldata && $side_effectsdata) {
             return response()->json([
                 'message' => 'Pill data retrieved successfully',
+                'pillData' => $Pilldata,
                 'side_effectsdata' => $side_effectsdata
             ], 200);
         } else {

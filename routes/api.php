@@ -58,7 +58,7 @@ Route::group(['middleware' => 'MyAuthApi'], function () {
 
     //--------------------------------------start detection -----------------------------------------
 
-    Route::get('/detection', [PillController::class, 'pillDetectionData']);
+    Route::post('/detection', [PillController::class, 'pillDetectionData']);
     Route::get('/detection/dosage', [PillController::class, 'pillDetectionDosageData']);
     Route::get('/detection/contraindiacation', [PillController::class, 'pillDetectionContraindiacationsData']);
     Route::get('/detection/sideeffect', [PillController::class, 'pillDetectionSideEffectsData']);
