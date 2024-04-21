@@ -40,7 +40,7 @@ Route::post('/register', [UserController::class, 'register']);
 Route::group(['middleware' => 'MyAuthApi'], function () {
 
 
-    //--------------------------------- start profile--------------------------------------------
+    //---------------------------------start profile--------------------------------------------
 
     Route::post('/userphoto', [UserController::class, 'uploadUserPhoto']);
     Route::post('/userpersonalinformation', [UserController::class, 'updatePersonalInformation']);
@@ -58,7 +58,7 @@ Route::group(['middleware' => 'MyAuthApi'], function () {
 
     //--------------------------------------start detection -----------------------------------------
 
-    Route::post('/detection', [PillController::class, 'pillDetectionData']);
+    Route::post('/detection', [PillController::class, 'detection']);
     Route::get('/detection/dosage', [PillController::class, 'pillDetectionDosageData']);
     Route::get('/detection/contraindiacation', [PillController::class, 'pillDetectionContraindiacationsData']);
     Route::get('/detection/sideeffect', [PillController::class, 'pillDetectionSideEffectsData']);
@@ -67,7 +67,9 @@ Route::group(['middleware' => 'MyAuthApi'], function () {
 
     //---------------------------------------start Interaction--------------------------------------------------
 
-    Route::get('/interaction', [PillController::class, 'pillInteractionData']);
+    Route::get('/interaction/index', [PillController::class, 'interactionIndex']);
+    Route::get('/interaction', [PillController::class, 'interaction']);
+    Route::post('/imageInteraction', [PillController::class, 'imageInteraction']);
     Route::get('/interaction/history', [PillController::class, 'PillInteractionUserHistory']);
     Route::get('/interaction/history/show', [PillController::class, 'ShowPillInteractionUserHistory']);
 

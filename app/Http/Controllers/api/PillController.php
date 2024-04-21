@@ -4,118 +4,106 @@ namespace App\Http\Controllers\api;
 
 use App\Helpers\MyTokenManager;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ImageDetectionRequest;
+use App\Http\Requests\ImageInteractionRequest;
+use App\Http\Requests\InteractionRequest;
+use App\Http\Resources\PillResource;
 use App\Models\api\Pill;
-use App\Models\User;
+use App\Models\PillInteraction;
+use App\Models\UserInteractions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class PillController extends Controller
 {
-    public function pillDetectionData(Request $request)
+    public function detection(ImageDetectionRequest $request)
     {
-        if ($request->hasFile('img')) {
-            $img = $request->file('img');
-            $response = Http::attach(
-                'img',
-                file_get_contents($img->path()),
-                $img->getClientOriginalName()
-            )->post('http://127.0.0.1:5000/detect');
-            if ($response->successful()) {
-                $data = $response->json();
-                $pillData = Pill::where('name', $data['Class Name'])->first();
-                if ($pillData) {
-                    return response()->json([
-                        'message' => 'Pill data retrieved successfully',
-                        'pillData' => $pillData,
-                    ], 200);
-                } else {
-                    return response()->json(['errorMessage' => 'Pill not found'], 404);
-                }
+        $img = $request->file('img');
+        $response = Http::attach(
+            'img',
+            file_get_contents($img->path()),
+            $img->getClientOriginalName()
+        )->post('http://127.0.0.1:5000/detect');
+        if ($response->successful()) {
+            $data = $response->json();
+            $pill = Pill::with(['dosages', 'sideEffects', 'contraindiacations'])->where('name', $data['Class Name'])->first();
+            if ($pill) {
+                return new  PillResource($pill);
             } else {
-                return response()->json(['error' => 'Error processing the request'], $response->status());
+                return response()->json(['errorMessage' => 'Pill not found'], 404);
             }
+        } else {
+            return response()->json(['errorMessage' => 'Error processing the image detection request, try again later.'], $response->status());
         }
     }
-    public function pillDetectionDosageData(Request $request)
-    {
-        $id = $request->input('id');
-        if (!$id) {
-            return response()->json(['error' => 'Pill id not provided'], 400);
-        }
-        $Pilldata = Pill::where('id', $id)->first();
-        $pilldosagedata = DB::select('select * from pill_dosages where pill_id=?', [$Pilldata->id]);
 
-        if ($Pilldata && $pilldosagedata) {
-            return response()->json([
-                'message' => 'Pill data retrieved successfully',
-                'pillData'=> $Pilldata,
-                'pilldosagedata' => $pilldosagedata,
-            ], 200);
-        } else {
-            return response()->json(['errorMessage' => 'Pill not found'], 404);
-        }
-    }
-    public function pillDetectionContraindiacationsData(Request $request)
+    public function interactionIndex()
     {
-        $id = $request->input('id');
-        if (!$id) {
-            return response()->json(['error' => 'Pill id not provided'], 400);
+        $pills = Pill::select('id', 'name')->get();
+        if ($pills->isEmpty()) {
+            return response()->json(['message' => 'No pills found.'], 404);
         }
-        $Pilldata = Pill::where('id', $id)->first();
-        $contraindiacationsdata = DB::select('select * from contraindiacations where pill_id=?', [$Pilldata->id]);
-        if ($Pilldata && $contraindiacationsdata) {
-            return response()->json([
-                'message' => 'Pill data retrieved successfully',
-                'pillData' => $Pilldata,
-                'contraindiacationsdata' => $contraindiacationsdata,
-            ], 200);
-        } else {
-            return response()->json(['errorMessage' => 'Pill not found'], 404);
-        }
+        return response()->json([
+            'message' => 'get Pills list successfully',
+            'data' => $pills,
+        ], 200);
     }
-    public function pillDetectionSideEffectsData(Request $request)
+
+    public function interaction(InteractionRequest $request)
     {
-        $id = $request->input('id');
-        if (!$id) {
-            return response()->json(['error' => 'Pill id not provided'], 400);
-        }
-        $Pilldata = Pill::where('id', $id)->first();
-        $side_effectsdata = DB::select('select * from side_effects where pill_id=?', [$Pilldata->id]);
-        if ($Pilldata && $side_effectsdata) {
-            return response()->json([
-                'message' => 'Pill data retrieved successfully',
-                'pillData' => $Pilldata,
-                'side_effectsdata' => $side_effectsdata
-            ], 200);
-        } else {
-            return response()->json(['errorMessage' => 'Pill not found'], 404);
-        }
-    }
-    public function pillInteractionData(Request $request)
-    {
-        $firstPill = $request->input('firstPill');
-        $secondPill = $request->input('secondPill');
-        if (!$firstPill or !$secondPill) {
-            return response()->json(['error' => 'Pill name not provided'], 400);
-        }
-        $firstPillData = Pill::where('name', $firstPill)->first();
-        $secondPillData = Pill::where('name', $secondPill)->first();
-        if (!$firstPillData or !$secondPillData) {
-            return response()->json(['error' => 'Pill name not found'], 400);
-        }
-        $pillInteractionData = DB::select('select * from pill_interactions where pill_1_id =? and pill_2_id=? ', [$firstPillData->id, $secondPillData->id]);
-        $user = MyTokenManager::currentUser($request);
-        DB::insert('insert into user_interactions(interaction_id,user_id) values (?,?)', [$pillInteractionData[0]->id, $user->id]);
+        $pill_1_id = $request->input('pill_1_id');
+        $pill_2_id = $request->input('pill_2_id');
+        $pillInteractionData = PillInteraction::with(['pill1:id,name,photo', 'pill2:id,name,photo'])
+            ->where('pill_1_id', $pill_1_id)
+            ->where('pill_2_id', $pill_2_id)
+            ->get();
         if ($pillInteractionData) {
+            $user = MyTokenManager::currentUser($request);
+            UserInteractions::create([
+                'interaction_id' => $pillInteractionData[0]->id, 'user_id' => $user->id,
+            ]);
             return response()->json([
-                'message' => 'Pill Intearction data retrieved successfully',
-                'firstPillData' => $firstPillData,
-                'secondPillData' => $secondPillData,
+                'message' => ' Intearction data retrieved successfully',
                 'pillInteractionData' => $pillInteractionData,
             ], 200);
         } else {
             return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+        }
+    }
+    public function imageInteraction(ImageInteractionRequest $request)
+    {
+        $images = [$request->file('img1'), $request->file('img2')];
+        foreach ($images as $img) {
+            $responses[] = Http::attach(
+                'img',
+                file_get_contents($img->path()),
+                $img->getClientOriginalName()
+            )->post('http://127.0.0.1:5000/detect');
+        }
+        $allSuccessful = collect($responses)->every(function ($response) {
+            return $response->successful();
+        });
+
+        if ($allSuccessful) {
+            $detect_pill_1 = $responses[0]->json();
+            $detect_pill_2 = $responses[1]->json();
+            $pillData = Pill::select('id', 'name', 'photo')
+                ->whereIn('name', [$detect_pill_1['Class Name'], $detect_pill_2['Class Name']])->get();
+
+            $interactions = PillInteraction::where('pill_1_id', $pillData[0]->id)
+                ->where('pill_2_id', $pillData[1]->id)
+                ->get();
+
+            return response()->json([
+                'message' => 'Pill interactions retrieved successfully',
+                'pillData1' => $pillData[0],
+                'pillData2' => $pillData[1],
+                'interaction' => $interactions[0],
+
+            ], 200);
+        } else {
+            return response()->json(['error' => 'Can not detect your image']);
         }
     }
     public function PillInteractionUserHistory(Request $request)

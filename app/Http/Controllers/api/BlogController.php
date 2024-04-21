@@ -22,6 +22,7 @@ class BlogController extends Controller
             return response()->json(['errorMessage' => 'blog not found'], 404);
         }
     }
+    
     public function search(Request $request)
     {
         $title = $request->input('title');
