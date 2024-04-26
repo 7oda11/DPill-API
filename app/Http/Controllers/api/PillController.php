@@ -5,8 +5,8 @@ namespace App\Http\Controllers\api;
 use App\Helpers\MyTokenManager;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImageDetectionRequest;
-use App\Http\Requests\ImageInteractionRequest;
 use App\Http\Requests\InteractionRequest;
+use App\Http\Resources\PillInteractionResource;
 use App\Http\Resources\PillResource;
 use App\Models\api\Pill;
 use App\Models\PillInteraction;
@@ -27,7 +27,8 @@ class PillController extends Controller
         )->post('http://127.0.0.1:5000/detect');
         if ($response->successful()) {
             $data = $response->json();
-            $pill = Pill::with(['dosages', 'sideEffects', 'contraindiacations'])->where('name', $data['Class Name'])->first();
+            $pill = Pill::where('name', $data['Class Name'])->first();
+
             if ($pill) {
                 return new  PillResource($pill);
             } else {
@@ -54,8 +55,8 @@ class PillController extends Controller
     {
         $pill_1_id = $request->input('pill_1_id');
         $pill_2_id = $request->input('pill_2_id');
-        $pillInteractionData = PillInteraction::with(['pill1:id,name,photo', 'pill2:id,name,photo'])
-            ->where('pill_1_id', $pill_1_id)
+
+        $pillInteractionData = PillInteraction::where('pill_1_id', $pill_1_id)
             ->where('pill_2_id', $pill_2_id)
             ->get();
         if ($pillInteractionData) {
@@ -63,15 +64,12 @@ class PillController extends Controller
             UserInteractions::create([
                 'interaction_id' => $pillInteractionData[0]->id, 'user_id' => $user->id,
             ]);
-            return response()->json([
-                'message' => ' Intearction data retrieved successfully',
-                'pillInteractionData' => $pillInteractionData,
-            ], 200);
+            return PillInteractionResource::collection($pillInteractionData);
         } else {
             return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
         }
     }
-    public function imageInteraction(ImageInteractionRequest $request)
+    public function imageInteraction(Request $request)
     {
         $images = [$request->file('img1'), $request->file('img2')];
         foreach ($images as $img) {
@@ -88,20 +86,20 @@ class PillController extends Controller
         if ($allSuccessful) {
             $detect_pill_1 = $responses[0]->json();
             $detect_pill_2 = $responses[1]->json();
-            $pillData = Pill::select('id', 'name', 'photo')
-                ->whereIn('name', [$detect_pill_1['Class Name'], $detect_pill_2['Class Name']])->get();
+            $pills_id = Pill::select('id')->whereIn('name', [$detect_pill_1['Class Name'], $detect_pill_2['Class Name']])->get();
 
-            $interactions = PillInteraction::where('pill_1_id', $pillData[0]->id)
-                ->where('pill_2_id', $pillData[1]->id)
+            $interactions = PillInteraction::where('pill_1_id', $pills_id[0]->id)
+                ->where('pill_2_id', $pills_id[1]->id)
                 ->get();
-
-            return response()->json([
-                'message' => 'Pill interactions retrieved successfully',
-                'pillData1' => $pillData[0],
-                'pillData2' => $pillData[1],
-                'interaction' => $interactions[0],
-
-            ], 200);
+            if ($interactions) {
+                $user = MyTokenManager::currentUser($request);
+                UserInteractions::create([
+                    'interaction_id' => $interactions[0]->id, 'user_id' => $user->id,
+                ]);
+                return PillInteractionResource::collection($interactions);
+            } else {
+                return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+            }
         } else {
             return response()->json(['error' => 'Can not detect your image']);
         }
