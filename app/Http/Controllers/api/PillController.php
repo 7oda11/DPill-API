@@ -41,7 +41,7 @@ class PillController extends Controller
 
     public function interactionIndex()
     {
-        $pills = Pill::select('id', 'name')->get();
+        $pills = Pill::select('name')->get();
         if ($pills->isEmpty()) {
             return response()->json(['message' => 'No pills found.'], 404);
         }
