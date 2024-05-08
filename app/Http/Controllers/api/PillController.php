@@ -14,6 +14,7 @@ use App\Models\UserInteractions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class PillController extends Controller
 {
@@ -53,22 +54,26 @@ class PillController extends Controller
 
     public function interaction(InteractionRequest $request)
     {
-        $pill_1_id = $request->input('pill_1_id');
-        $pill_2_id = $request->input('pill_2_id');
+        $pill_1_id = Pill::where('name', $request->input('pillName_1'))->value('id');
+        $pill_2_id = Pill::where('name', $request->input('pillName_2'))->value('id');
 
-        $pillInteractionData = PillInteraction::where('pill_1_id', $pill_1_id)
-            ->where('pill_2_id', $pill_2_id)
+        $pillInteractionData = PillInteraction::whereIn('pill_1_id', [$pill_1_id, $pill_2_id])
+            ->whereIn('pill_2_id', [$pill_1_id, $pill_2_id])
             ->get();
+
+
         if ($pillInteractionData) {
             $user = MyTokenManager::currentUser($request);
             UserInteractions::create([
-                'interaction_id' => $pillInteractionData[0]->id, 'user_id' => $user->id,
+                'interaction_id' => $pillInteractionData[0]->id,
+                'user_id' => $user->id,
             ]);
             return PillInteractionResource::collection($pillInteractionData);
         } else {
             return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
         }
     }
+
     public function imageInteraction(Request $request)
     {
         $images = [$request->file('img1'), $request->file('img2')];

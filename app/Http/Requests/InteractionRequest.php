@@ -22,8 +22,8 @@ class InteractionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pill_1_id' => 'required|exists:pills,id',
-            'pill_2_id' => 'required|exists:pills,id|different:pill_1_id',
+            'pillName_1' => 'required|exists:pills,name',
+            'pillName_2' => 'required|exists:pills,name|different:pillName_1',
         ];
     }
 }
