@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pill extends Model
 {
     use HasFactory;
- // protected $fillable = [
+    // protected $fillable = [
     //     'name',
     //     'photo',
     //     'description',
