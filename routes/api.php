@@ -71,7 +71,9 @@ Route::group(['middleware' => 'MyAuthApi'], function () {
     Route::get('/interaction', [PillController::class, 'interaction']);
     Route::post('/imageInteraction', [PillController::class, 'imageInteraction']);
     Route::get('/interaction/history', [PillController::class, 'PillInteractionUserHistory']);
-    Route::get('/interaction/history/show', [PillController::class, 'ShowPillInteractionUserHistory']);
+    Route::get('/interaction/history/show/{id}', [PillController::class, 'ShowPillInteractionUserHistory']);
+    Route::delete('interaction/history/delete/{id}', [PillController::class, 'DeletePillInteractionHistory']);
+
 
     //----------------------------------------End Interaction----------------------------------------------------
     Route::get('/logout', [UserController::class, 'logout']);

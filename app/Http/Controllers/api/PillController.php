@@ -15,7 +15,6 @@ use App\Models\PillInteraction;
 use App\Models\UserInteractions;
 use App\Models\UserPhotos;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class PillController extends Controller
@@ -163,24 +162,50 @@ class PillController extends Controller
         }
     }
 
-    public function ShowPillInteractionUserHistory(Request $request)
+    // public function ShowPillInteractionUserHistory(Request $request)
+    // {
+    //     $interaction_id = $request->input('interaction_id');
+    //     if (!$interaction_id) {
+    //         return response()->json(['error' => 'Pill interaction not provided'], 400);
+    //     }
+    //     $pillInteractionData = DB::select('select * from pill_interactions where id=? ', [$interaction_id]);
+    //     $firstPillData = Pill::where('id', $pillInteractionData[0]->pill_1_id)->first();
+    //     $secondPillData = Pill::where('id', $pillInteractionData[0]->pill_2_id)->first();
+    //     if ($pillInteractionData and $firstPillData and $secondPillData) {
+    //         return response()->json([
+    //             'message' => 'Pill Intearction data retrieved successfully',
+    //             'firstPillData' => $firstPillData,
+    //             'secondPillData' => $secondPillData,
+    //             'pillInteractionData' => $pillInteractionData,
+    //         ], 200);
+    //     } else {
+    //         return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+    //     }
+    // }
+
+    public function ShowPillInteractionUserHistory($id)
     {
-        $interaction_id = $request->input('interaction_id');
-        if (!$interaction_id) {
-            return response()->json(['error' => 'Pill interaction not provided'], 400);
-        }
-        $pillInteractionData = DB::select('select * from pill_interactions where id=? ', [$interaction_id]);
-        $firstPillData = Pill::where('id', $pillInteractionData[0]->pill_1_id)->first();
-        $secondPillData = Pill::where('id', $pillInteractionData[0]->pill_2_id)->first();
-        if ($pillInteractionData and $firstPillData and $secondPillData) {
-            return response()->json([
-                'message' => 'Pill Intearction data retrieved successfully',
-                'firstPillData' => $firstPillData,
-                'secondPillData' => $secondPillData,
-                'pillInteractionData' => $pillInteractionData,
-            ], 200);
-        } else {
+        $interaction = PillInteraction::find($id);
+        if (!$interaction) {
             return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
         }
+        return new PillInteractionResource($interaction);
+    }
+
+
+
+    public function DeletePillInteractionHistory(Request $request, $id)
+    {
+        $user = MyTokenManager::currentUser($request);
+        $userInteraction = UserInteractions::find($id);
+        if (!$userInteraction) {
+            return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+        }
+        if ($user->id !== $userInteraction->user_id) {
+
+            return response()->json(['errorMessage' => 'You Are Not Authorized to Delete This History Record'], 403);
+        }
+        $userInteraction->delete();
+        return response()->json(['message' => 'Deleted Pill Interaction Record Successfully'], 200);
     }
 }
