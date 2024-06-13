@@ -42,10 +42,16 @@ class PillController extends Controller
                 ]);
                 return new  PillResource($pill);
             } else {
-                return response()->json(['errorMessage' => 'Pill not found'], 404);
+                return response()->json([
+                    'errorMessage' => 'Pill not found',
+                    "statusCode" => 404
+                ], 404);
             }
         } else {
-            return response()->json(['errorMessage' => 'Error processing the image detection request, try again later.'], $response->status());
+            return response()->json([
+                'errorMessage' => 'Error processing the image detection request, try again later.',
+                "statusCode" => $response->status()
+            ], $response->status());
         }
     }
 
@@ -71,7 +77,7 @@ class PillController extends Controller
             ->get();
 
 
-        if ($pillInteractionData) {
+        if ($pillInteractionData->isNotEmpty()) {
             $user = MyTokenManager::currentUser($request);
             UserInteractions::create([
                 'interaction_id' => $pillInteractionData[0]->id,
@@ -79,7 +85,10 @@ class PillController extends Controller
             ]);
             return PillInteractionResource::collection($pillInteractionData);
         } else {
-            return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+            return response()->json([
+                'errorMessage' => 'Pill Interaction Data not found',
+                "statusCode" => 404,
+            ], 404);
         }
     }
 
@@ -113,10 +122,16 @@ class PillController extends Controller
                 ]);
                 return PillInteractionResource::collection($pillInteractionData);
             } else {
-                return response()->json(['errorMessage' => 'No interactions have been found between those pills yet.'], 404);
+                return response()->json([
+                    'errorMessage' => 'No interactions have been found between those pills yet.',
+                    "statusCode" => 404,
+                ], 404);
             }
         } else {
-            return response()->json(['error' => 'Can not detect your image']);
+            return response()->json([
+                'errorMessage' => 'Can not detect your image',
+                "statusCode" => 404,
+            ], 404);
         }
     }
 
@@ -131,7 +146,10 @@ class PillController extends Controller
 
             return UserPillInteractionsResource::collection($userInteractionsHistory);
         } else {
-            return response()->json(['errorMessage' => 'No Pills Interactions in your History Yet'], 404);
+            return response()->json([
+                'errorMessage' => 'No Pills Interactions in your History Yet',
+                "statusCode" => 404,
+            ], 404);
         }
     }
 
@@ -139,7 +157,10 @@ class PillController extends Controller
     {
         $interaction = PillInteraction::find($id);
         if (!$interaction) {
-            return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+            return response()->json([
+                'errorMessage' => 'Pill Interaction Data not found',
+                "statusCode" => 404,
+            ], 404);
         }
         return new PillInteractionResource($interaction);
     }
@@ -151,11 +172,17 @@ class PillController extends Controller
         $user = MyTokenManager::currentUser($request);
         $userInteraction = UserInteractions::find($id);
         if (!$userInteraction) {
-            return response()->json(['errorMessage' => 'Pill Interaction Data not found'], 404);
+            return response()->json([
+                'errorMessage' => 'Pill Interaction Data not found',
+                "statusCode" => 404,
+            ], 404);
         }
         if ($user->id !== $userInteraction->user_id) {
 
-            return response()->json(['errorMessage' => 'You Are Not Authorized to Delete This History Record'], 403);
+            return response()->json([
+                'errorMessage' => 'You Are Not Authorized to Delete This History Record',
+                "statusCode" => 403,
+            ], 403);
         }
         $userInteraction->delete();
         return response()->json(['message' => 'Deleted Pill Interaction Record Successfully'], 200);
@@ -173,7 +200,10 @@ class PillController extends Controller
 
             return UserPillDetectionResource::collection($userDetectionHistory);
         } else {
-            return response()->json(['errorMessage' => 'No Pills Detections in your History Yet'], 404);
+            return response()->json([
+                'errorMessage' => 'No Pills Detections in your History Yet',
+                "statusCode" => 404,
+            ], 404);
         }
     }
 
@@ -183,7 +213,10 @@ class PillController extends Controller
     {
         $pill = Pill::find($id);
         if (!$pill) {
-            return response()->json(['errorMessage' => 'Pill Data not found'], 404);
+            return response()->json([
+                'errorMessage' => 'Pill Data not found',
+                "statusCode" => 404,
+            ], 404);
         }
         return new PillResource($pill);
     }
@@ -193,11 +226,11 @@ class PillController extends Controller
         $user = MyTokenManager::currentUser($request);
         $userDetection = UserPhotos::find($id);
         if (!$userDetection) {
-            return response()->json(['errorMessage' => 'Pill detection Data not found'], 404);
+            return response()->json(['errorMessage' => 'Pill detection Data not found', "statusCode" => 404], 404);
         }
         if ($user->id !== $userDetection->user_id) {
 
-            return response()->json(['errorMessage' => 'You Are Not Authorized to Delete This History Record'], 403);
+            return response()->json(['errorMessage' => 'You Are Not Authorized to Delete This History Record', "statusCode" => 403], 403);
         }
         $userDetection->delete();
         return response()->json(['message' => 'Deleted Pill Detection Record Successfully'], 200);

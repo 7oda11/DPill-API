@@ -23,10 +23,23 @@ class ImageInteractionRequest extends FormRequest
     }
 
 
+    // protected function failedValidation(Validator $validator)
+    // {
+    //     throw new HttpResponseException(response()->json([
+    //         'errors' => $validator->errors(),
+    //     ], 422));
+    // }
+
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json([
-            'errors' => $validator->errors(),
-        ], 422));
+        $errors = $validator->errors()->toArray();
+        $firstErrorMessage = reset($errors)[0];
+
+        $customError = [
+            'errorMessage' => $firstErrorMessage,
+            "statusCode" => 422,
+        ];
+
+        throw new HttpResponseException(response()->json($customError, 422));
     }
 }

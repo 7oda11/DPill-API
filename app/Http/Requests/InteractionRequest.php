@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
+
 
 class InteractionRequest extends FormRequest
 {
@@ -25,5 +28,18 @@ class InteractionRequest extends FormRequest
             'pillName_1' => 'required|exists:pills,name',
             'pillName_2' => 'required|exists:pills,name|different:pillName_1',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $errors = $validator->errors()->toArray();
+        $firstErrorMessage = reset($errors)[0];
+
+        $customError = [
+            'errorMessage' => $firstErrorMessage,
+            "statusCode" => 422,
+        ];
+
+        throw new HttpResponseException(response()->json($customError, 422));
     }
 }

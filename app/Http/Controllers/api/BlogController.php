@@ -15,19 +15,25 @@ class BlogController extends Controller
         $blogs = DB::select('select * from blogs');
         if ($blogs) {
             return response()->json([
-                'message' => 'Pill data retrieved successfully',
+                'message' => 'articles retrieved successfully',
                 'blogs' => $blogs,
             ], 200);
         } else {
-            return response()->json(['errorMessage' => 'blog not found'], 404);
+            return response()->json([
+                'errorMessage' => 'No Articles exist',
+                "statusCode" => 404,
+            ], 404);
         }
     }
-    
+
     public function search(Request $request)
     {
         $title = $request->input('title');
         if (!$title) {
-            return response()->json(['error' => 'title name not provided'], 400);
+            return response()->json([
+                'errorMessage' => 'title name not provided',
+                "statusCode" => 400,
+            ], 400);
         }
         $titleWithWildcards = '%' . $title . '%';
         $blogs = DB::select('select * from blogs where title like ?', [$titleWithWildcards]);
@@ -44,7 +50,10 @@ class BlogController extends Controller
     {
         $id = $request->input('id');
         if (!$id) {
-            return response()->json(['error' => 'id not provided'], 400);
+            return response()->json([
+                'errorMessage' => 'id not provided',
+                "statusCode" => 400
+            ], 400);
         }
         $blog = Blog::where('id', $id)->first();
         if ($blog) {
@@ -53,7 +62,10 @@ class BlogController extends Controller
                 'blogs' => $blog,
             ], 200);
         } else {
-            return response()->json(['errorMessage' => 'blog not found'], 404);
+            return response()->json([
+                'errorMessage' => 'blog not found',
+                "statusCode" => 400,
+            ], 404);
         }
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
 class ImageDetectionRequest extends FormRequest
 {
@@ -24,5 +26,17 @@ class ImageDetectionRequest extends FormRequest
         return [
             'img' =>  'required|image|mimes:jpeg,png,jpg',
         ];
+    }
+    protected function failedValidation(Validator $validator)
+    {
+        $errors = $validator->errors()->toArray();
+        $firstErrorMessage = reset($errors)[0];
+
+        $customError = [
+            'errorMessage' => $firstErrorMessage,
+            "statusCode" => 422,
+        ];
+
+        throw new HttpResponseException(response()->json($customError, 422));
     }
 }
