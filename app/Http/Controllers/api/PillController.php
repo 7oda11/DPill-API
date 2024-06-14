@@ -43,7 +43,7 @@ class PillController extends Controller
                 return new  PillResource($pill);
             } else {
                 return response()->json([
-                    'errorMessage' => 'Pill not found',
+                    'errorMessage' => $data['Class Name'] . ' ' . 'Pill have not additional information',
                     "statusCode" => 404
                 ], 404);
             }
@@ -59,7 +59,7 @@ class PillController extends Controller
     {
         $pills = Pill::select('name')->get();
         if ($pills->isEmpty()) {
-            return response()->json(['message' => 'No pills found.'], 404);
+            return response()->json(['message' => 'No pills found in the database..'], 404);
         }
         return response()->json([
             'message' => 'get Pills list successfully',
@@ -95,6 +95,7 @@ class PillController extends Controller
     public function imageInteraction(ImageInteractionRequest $request)
     {
         $images = [$request->file('img1'), $request->file('img2')];
+        $responses = [];
         foreach ($images as $img) {
             $responses[] = Http::attach(
                 'img',
@@ -102,6 +103,7 @@ class PillController extends Controller
                 $img->getClientOriginalName()
             )->post('http://127.0.0.1:5000/detect');
         }
+
         $allSuccessful = collect($responses)->every(function ($response) {
             return $response->successful();
         });
@@ -109,21 +111,34 @@ class PillController extends Controller
         if ($allSuccessful) {
             $detect_pill_1 = $responses[0]->json();
             $detect_pill_2 = $responses[1]->json();
-            $pills_id = Pill::select('id')->whereIn('name', [$detect_pill_1['Class Name'], $detect_pill_2['Class Name']])->get();
 
-            $pillInteractionData = PillInteraction::whereIn('pill_1_id', [$pills_id[0]->id, $pills_id[1]->id])
-                ->whereIn('pill_2_id', [$pills_id[0]->id, $pills_id[1]->id])
+            $pills_id = Pill::select('id')
+                ->whereIn('name', [$detect_pill_1['Class Name'], $detect_pill_2['Class Name']])
                 ->get();
 
-            if ($pillInteractionData) {
-                $user = MyTokenManager::currentUser($request);
-                UserInteractions::create([
-                    'interaction_id' => $pillInteractionData[0]->id, 'user_id' => $user->id,
-                ]);
-                return PillInteractionResource::collection($pillInteractionData);
+            // Check if $pills_id has exactly 2 elements
+            if ($pills_id->count() === 2) {
+                $pillInteractionData = PillInteraction::whereIn('pill_1_id', [$pills_id[0]->id, $pills_id[1]->id])
+                    ->whereIn('pill_2_id', [$pills_id[0]->id, $pills_id[1]->id])
+                    ->get();
+
+                if ($pillInteractionData->isNotEmpty()) {
+                    $user = MyTokenManager::currentUser($request);
+                    UserInteractions::create([
+                        'interaction_id' => $pillInteractionData[0]->id,
+                        'user_id' => $user->id,
+                    ]);
+
+                    return PillInteractionResource::collection($pillInteractionData);
+                } else {
+                    return response()->json([
+                        'errorMessage' => 'No interactions have been found between those pills yet.',
+                        "statusCode" => 404,
+                    ], 404);
+                }
             } else {
                 return response()->json([
-                    'errorMessage' => 'No interactions have been found between those pills yet.',
+                    'errorMessage' => 'One or both pills not found in the database.',
                     "statusCode" => 404,
                 ], 404);
             }
@@ -134,7 +149,6 @@ class PillController extends Controller
             ], 404);
         }
     }
-
 
     //////////////////////////////////////////Interaction History////////////////////////////////////////
     public function PillInteractionUserHistory(Request $request)
