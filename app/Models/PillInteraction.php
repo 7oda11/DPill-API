@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 class PillInteraction extends Model
 {
     use HasFactory;
+    protected $table = "pills_interactions";
+
     public function pill1()
     {
         return $this->belongsTo(Pill::class, 'pill_1_id');

@@ -36,7 +36,7 @@ class PillController extends Controller
                 $imagePath = $img->store('images/userPillsPhotos', 'public');
                 $user = MyTokenManager::currentUser($request);
                 UserPhotos::create([
-                    'path' => $imagePath,
+                    'photo' => $imagePath,
                     'user_id' => $user->id,
                     'pill_id' => $pill->id
                 ]);
