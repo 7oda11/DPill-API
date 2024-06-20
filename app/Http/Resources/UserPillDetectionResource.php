@@ -20,7 +20,7 @@ class UserPillDetectionResource extends JsonResource
 
             "id" => $this->id,
             "userPillPhoto" => $this->path,
-            "pillPhoto" => $this->pill->photo,
+            "pillPhoto" => asset($this->pill->photo),
             "pillName" => $this->pill->name,
             "pill_id" => $this->pill->id,
             "created_at" => Carbon::parse($this->created_at)->diffForHumans()

@@ -17,8 +17,8 @@ class UserPillInteractionsResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "pill_1_photo" => $this->pill1->photo,
-            "pill_2_photo" => $this->pill2->photo,
+            "pill_1_photo" => asset($this->pill1->photo),
+            "pill_2_photo" => asset($this->pill2->photo),
             "interaction_type" => $this->PillInteraction->interaction_type,
             "interaction_id" => $this->PillInteraction->id,
             "created_at" => Carbon::parse($this->created_at)->diffForHumans()

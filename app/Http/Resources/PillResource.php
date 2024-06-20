@@ -18,7 +18,7 @@ class PillResource extends JsonResource
             "message" => "Pill data retrieved successfully",
             'id' => $this->id,
             'name' => $this->name,
-            'photo' => $this->photo,
+            'photo' =>asset($this->photo),
             'description' => $this->description,
             'dosages' => $this->dosages,
             'sideEffects' => $this->sideEffects,
