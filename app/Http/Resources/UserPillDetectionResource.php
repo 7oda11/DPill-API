@@ -19,7 +19,7 @@ class UserPillDetectionResource extends JsonResource
         return [
 
             "id" => $this->id,
-            "userPillPhoto" => $this->path,
+            "userPillPhoto" => asset($this->path),
             "pillPhoto" => asset($this->pill->photo),
             "pillName" => $this->pill->name,
             "pill_id" => $this->pill->id,

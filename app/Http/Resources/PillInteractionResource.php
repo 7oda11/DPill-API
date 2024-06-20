@@ -21,8 +21,23 @@ class PillInteractionResource extends JsonResource
             'interaction_type' => $this->interaction_type,
             'interaction_description' => $this->interaction_description,
             'guides' => $this->guides,
-            'pill1' => $this->pill1,
-            'pill2' => $this->pill2
+            'pill1' => [
+                'id' => $this->pill1->id,
+                'name' => $this->pill1->name,
+                'photo' => asset($this->pill1->photo),
+                'description' => $this->pill1->description,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
+
+            ],
+            'pill2' => [
+                'id' => $this->pill2->id,
+                'name' => $this->pill2->name,
+                'photo' => asset($this->pill2->photo),
+                'description' => $this->pill2->description,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
+            ],
         ];
     }
 }
