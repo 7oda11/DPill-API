@@ -13,18 +13,25 @@ class BlogController extends Controller
     public function index()
     {
         $blogs = DB::select('select * from blogs');
+
         if ($blogs) {
+            // Loop through each blog and convert the image path to a full asset URL
+            foreach ($blogs as &$blog) {
+                $blog->thumbnail = asset($blog->thumbnail);
+            }
+
             return response()->json([
-                'message' => 'articles retrieved successfully',
+                'message' => 'Articles retrieved successfully',
                 'blogs' => $blogs,
             ], 200);
         } else {
             return response()->json([
                 'errorMessage' => 'No Articles exist',
-                "statusCode" => 404,
+                'statusCode' => 404,
             ], 404);
         }
     }
+
 
     public function search(Request $request)
     {
