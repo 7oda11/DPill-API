@@ -10,19 +10,50 @@ use Illuminate\Support\Facades\DB;
 class BlogController extends Controller
 {
     //
+    // public function index()
+    // {
+    //     $blogs = DB::select('select * from blogs');
+
+    //     if ($blogs) {
+    //         // Loop through each blog and convert the image path to a full asset URL
+    //         foreach ($blogs as &$blog) {
+    //             $blog->thumbnail = asset($blog->thumbnail);
+    //         }
+
+    //         return response()->json([
+    //             'message' => 'Articles retrieved successfully',
+    //             'blogs' => $blogs,
+    //         ], 200);
+    //     } else {
+    //         return response()->json([
+    //             'errorMessage' => 'No Articles exist',
+    //             'statusCode' => 404,
+    //         ], 404);
+    //     }
+    // }
+
     public function index()
     {
         $blogs = DB::select('select * from blogs');
-
+    
         if ($blogs) {
-            // Loop through each blog and convert the image path to a full asset URL
-            foreach ($blogs as &$blog) {
-                $blog->thumbnail = asset($blog->thumbnail);
+            // Create an array to hold the customized blog objects
+            $customBlogs = [];
+    
+            // Loop through each blog and construct the customized blog object
+            foreach ($blogs as $blog) {
+                $customBlogs[] = [
+                    'id' =>$blog->id,
+                    'title' => $blog->title,
+                    'photo' => asset($blog->thumbnail),
+                    'content' => $blog->content,
+                    'reference' => $blog->title,
+                ];
             }
-
+    
             return response()->json([
                 'message' => 'Articles retrieved successfully',
-                'blogs' => $blogs,
+                'blogs' => $customBlogs,
             ], 200);
         } else {
             return response()->json([
@@ -31,6 +62,8 @@ class BlogController extends Controller
             ], 404);
         }
     }
+    
+
 
 
     public function search(Request $request)
