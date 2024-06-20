@@ -35,22 +35,24 @@ class BlogController extends Controller
     public function index()
     {
         $blogs = DB::select('select * from blogs');
-    
+
         if ($blogs) {
             // Create an array to hold the customized blog objects
             $customBlogs = [];
-    
+
             // Loop through each blog and construct the customized blog object
             foreach ($blogs as $blog) {
                 $customBlogs[] = [
-                    'id' =>$blog->id,
+                    'id' => $blog->id,
                     'title' => $blog->title,
                     'photo' => asset($blog->thumbnail),
                     'content' => $blog->content,
                     'reference' => $blog->title,
+                    'created_at' => $blog->created_at,
+                    'updated_at' => $blog->updated_at,
                 ];
             }
-    
+
             return response()->json([
                 'message' => 'Articles retrieved successfully',
                 'blogs' => $customBlogs,
@@ -62,7 +64,7 @@ class BlogController extends Controller
             ], 404);
         }
     }
-    
+
 
 
 
